@@ -15,3 +15,13 @@ Helps to keep OpenAPI specs and golang source code in synch
 * This tool takes golang source root directory which implements your API and OpenAPI specs file as inputs
 * One can make use of .dirignore file to skip directories, which will be ignored to find API endpoints.
 * You can also make use of .specignore file to ignore API paths to exclude from comparison such as /health/ready or /health/live
+
+## Usage
+* Format
+```shell
+openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/dir' 'path/to/ignored/directories/filename' 'path/to/ignored/paths/filename'
+```
+* Example
+```shell
+openapi-spec-code-diffs '~/example-service/openapi.yaml' '~/example-service' '~/example-service/.dirignore' '~/example-service/.specignore'
+```

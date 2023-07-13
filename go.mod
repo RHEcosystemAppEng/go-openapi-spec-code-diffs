@@ -1,4 +1,4 @@
-module openapi-spec-code-diffs
+module openapi_spec_code_diffs
 
 go 1.20
 
