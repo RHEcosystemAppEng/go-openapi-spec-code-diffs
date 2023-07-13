@@ -1,0 +1,8 @@
+.git
+test
+.gitlab
+integration-tests
+out
+bin
+openshift
+env

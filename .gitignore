@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+*.iml
+.idea/
+.DS_Store
+openapi-spec-code-diffs
