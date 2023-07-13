@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/RHEcosystemAppEng/openapi_spec_code_diffs/openapi-spec-code-diffs"
+	"github.com/RHEcosystemAppEng/openapi_spec_code_diffs/validator"
 	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
@@ -24,7 +24,7 @@ func main() {
 		os.Exit(ERROR_INSUFFICIENT_ARGS)
 	}
 	argsToVars()
-	validator := openapi_spec_code_diffs.NewOpenAPISpecCodeDiffsValidator(ignoredDirsFile, ignoredPathsFile, goSourceDir, openAPIFile)
+	validator := validator.NewOpenAPISpecCodeDiffsValidator(ignoredDirsFile, ignoredPathsFile, goSourceDir, openAPIFile)
 	err, result := validator.Validate()
 	if err != nil {
 		log.Error().Msg("Error while performing diffs: " + err.Error())

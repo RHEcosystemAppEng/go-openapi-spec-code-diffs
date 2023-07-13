@@ -1,4 +1,4 @@
-package openapi_spec_code_diffs
+package validator
 
 import (
 	"github.com/rs/zerolog/log"
