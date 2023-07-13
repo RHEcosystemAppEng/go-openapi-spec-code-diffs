@@ -1,6 +1,6 @@
 module github.com/RHEcosystemAppEng/openapi_spec_code_diffs
 
-go 1.20
+go 1.18
 
 require (
 	github.com/pb33f/libopenapi v0.9.2
