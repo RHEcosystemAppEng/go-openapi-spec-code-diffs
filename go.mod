@@ -1,4 +1,4 @@
-module openapi_spec_code_diffs
+module github.com/RHEcosystemAppEng/openapi_spec_code_diffs
 
 go 1.20
 
