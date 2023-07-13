@@ -1,4 +1,4 @@
-package main
+package openapi_spec_code_diffs
 
 import "github.com/rs/zerolog/log"
 

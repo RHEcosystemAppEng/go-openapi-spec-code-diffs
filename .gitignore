@@ -23,5 +23,3 @@ go.work
 *.iml
 .idea/
 .DS_Store
-openapi-spec-code-diffs
-openapi_spec_code_diffs
