@@ -17,6 +17,7 @@ Helps to keep OpenAPI specs and golang source code in synch
 * You can also make use of .specignore file to ignore API paths to exclude from comparison such as /health/ready or /health/live
 
 ## Usage
+### As shell command
 * Format
 ```shell
 openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/dir' 'path/to/ignored/directories/filename' 'path/to/ignored/paths/filename'
@@ -24,4 +25,22 @@ openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/
 * Example
 ```shell
 openapi-spec-code-diffs '~/example-service/openapi.yaml' '~/example-service' '~/example-service/.dirignore' '~/example-service/.specignore'
+```
+
+### As a package/library in golang source code
+* Import the package/library
+```go
+import "github.com/RHEcosystemAppEng/openapi_spec_code_diffs/validator"
+```
+
+* Use the validator e.g. in test code as follows. Paths below are relative to the path of the test file from which tests are going to be executed from.
+```go
+func validateOpenAPISpecs(t *testing.T) {
+	oasStaticValidator := validator.NewOpenAPISpecCodeDiffsValidator("./oasStaticValidator/.dirignore", "./oasStaticValidator/.specignore", "../../", "../../openapi.yaml")
+	err, result := oasStaticValidator.Validate()
+
+	assert.Nil(t, err, "No errors returned from openapi validation")
+	assert.Equal(t, 0, len(result.SpecDefsNotInCode), "Found spec defs not implemented in code", len(result.SpecDefsNotInCode))
+	assert.Equal(t, 0, len(result.CodeDefsNotSpec), "Found code defs not reflected in specs", len(result.CodeDefsNotSpec))
+}
 ```
