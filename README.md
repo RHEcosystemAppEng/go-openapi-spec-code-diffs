@@ -44,3 +44,9 @@ func validateOpenAPISpecs(t *testing.T) {
 	assert.Equal(t, 0, len(result.CodeDefsNotSpec), "Found code defs not reflected in specs", len(result.CodeDefsNotSpec))
 }
 ```
+
+## Running tests
+* Use the standard go command to run tests as follows, which are divided as positive and negative tests:
+```shell
+ go test -v ./tests/positive ./tests/negative
+```

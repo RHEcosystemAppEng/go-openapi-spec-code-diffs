@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  description: openapi_spec_code_diffs tests
+  version: 1.0.0
+  title: openapi_spec_code_diffs tests
+tags:
+  - name: OpenAPI Spec Code Diffs
+    description: OpenAPI Spec Code Diffs
+paths:
+  /health/ready:
+    get:
+      tags:
+        - OpenAPI Spec Code Diffs
+      summary: Checks the health of an application
+      description: Checks the health of an application
+      operationId: health
+      responses:
+        '200':
+          description: Application is healthy

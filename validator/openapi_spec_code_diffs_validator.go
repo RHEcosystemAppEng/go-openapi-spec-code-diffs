@@ -46,7 +46,12 @@ func (v *OpenAPISpecCodeDiffsValidator) setupValidator() (error, *DiffWorker) {
 	}
 
 	oasModel := NewOASModel(v.oasSpecFile)
-	oasModel.LoadSpecModel()
+	err = oasModel.LoadSpecModel()
+	if err != nil {
+		log.Error().Msg("Error while processing OpenAPI Spec file" + err.Error())
+		return err, nil
+	}
+
 	specAPIDefs := oasModel.GetPathOps()
 
 	return nil, NewDiffWorker(codeAPIDefs, specAPIDefs, ignoredAPISpecs)

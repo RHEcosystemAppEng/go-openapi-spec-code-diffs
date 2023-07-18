@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"github.com/rs/zerolog/log"
 	slices "golang.org/x/exp/slices"
 	"io/fs"
@@ -21,6 +22,11 @@ func NewGoSourceDirectory(dir string, ignoredDirectories *IgnoredDirectories) *G
 
 // WalkDirectory Recursively walks the directory, analyzes golang source files to find API definitions ignoring directories found in .dirignore
 func (gsd *GoSourceDirectory) WalkDirectory() (error, []*goSourceAPILine) {
+
+	if strings.TrimSpace(gsd.dir) == "" {
+		return errors.New("No go source directory specified"), nil
+	}
+
 	var apiLines []*goSourceAPILine
 	err := filepath.WalkDir(gsd.dir,
 		func(path string, d fs.DirEntry, err error) error {
