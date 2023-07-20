@@ -24,3 +24,4 @@ go.work
 .idea/
 .DS_Store
 openapi_spec_code_diffs
+try

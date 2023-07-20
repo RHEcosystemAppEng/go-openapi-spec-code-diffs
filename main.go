@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/RHEcosystemAppEng/openapi_spec_code_diffs/validator"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
@@ -14,17 +15,21 @@ const ERROR_PROCESSING_DIFFS = -2
 const ERROR_INSUFFICIENT_ARGS = -3
 
 var ignoredDirsFile string
+var ignoredFilesFile string
+var ignoredLinesFile string
 var ignoredPathsFile string
 var goSourceDir string
 var openAPIFile string
+var logLevel zerolog.Level = zerolog.InfoLevel
 
 func main() {
-	if len(os.Args) < 5 {
+	if len(os.Args) < 8 {
 		showUsage()
 		os.Exit(ERROR_INSUFFICIENT_ARGS)
 	}
 	argsToVars()
-	validator := validator.NewOpenAPISpecCodeDiffsValidator(ignoredDirsFile, ignoredPathsFile, goSourceDir, openAPIFile)
+	zerolog.SetGlobalLevel(logLevel)
+	validator := validator.NewOpenAPISpecCodeDiffsValidator(ignoredDirsFile, ignoredFilesFile, ignoredLinesFile, ignoredPathsFile, goSourceDir, openAPIFile)
 	err, result := validator.Validate()
 	if err != nil {
 		log.Error().Msg("Error while performing diffs: " + err.Error())
@@ -55,11 +60,26 @@ func argsToVars() {
 	openAPIFile = os.Args[1]
 	goSourceDir = os.Args[2]
 	ignoredDirsFile = os.Args[3]
-	ignoredPathsFile = os.Args[4]
+	ignoredFilesFile = os.Args[4]
+	ignoredLinesFile = os.Args[5]
+	ignoredPathsFile = os.Args[6]
+
+	switch os.Args[7] {
+	case "disabled":
+		logLevel = zerolog.Disabled
+	case "info":
+		logLevel = zerolog.InfoLevel
+	case "debug":
+		logLevel = zerolog.DebugLevel
+	case "error":
+		logLevel = zerolog.ErrorLevel
+	default:
+		log.Error().Msg("Invalid log level passed, will default to Info")
+	}
 }
 
 // showUsage Shows program usage
 func showUsage() {
-	fmt.Println("Usage: openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/dir' 'path/to/ignored/directories/filename' 'path/to/ignored/paths/filename'")
-	fmt.Println("Usage Example: openapi-spec-code-diffs '~/example-service/openapi.yaml' '~/example-service' '~/example-service/.dirignore' '~/example-service/.specignore'")
+	fmt.Println("Usage: openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/dir' 'path/to/ignored/directories/filename' 'path/to/ignored/paths/filename' 'log-level can be one of: disabled, info, debug, error'")
+	fmt.Println("Usage Example: openapi-spec-code-diffs '~/example-service/openapi.yaml' '~/example-service' '~/example-service/.dirignore' '~/example-service/.specignore' 'info'")
 }

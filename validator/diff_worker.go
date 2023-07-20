@@ -10,11 +10,11 @@ import (
 type DiffWorker struct {
 	codeAPIDefs     []*goSourceAPILine
 	specAPIDefs     []string
-	ignoredAPISpecs *IgnoredAPISpecs
+	ignoredAPISpecs *IgnoredAPIPaths
 }
 
 // NewDiffWorker Returns a new DiffWorker
-func NewDiffWorker(codeAPIDefs []*goSourceAPILine, specAPIDefs []string, ignoredAPIDefs *IgnoredAPISpecs) *DiffWorker {
+func NewDiffWorker(codeAPIDefs []*goSourceAPILine, specAPIDefs []string, ignoredAPIDefs *IgnoredAPIPaths) *DiffWorker {
 	return &DiffWorker{
 		codeAPIDefs: codeAPIDefs, specAPIDefs: specAPIDefs, ignoredAPISpecs: ignoredAPIDefs,
 	}
@@ -29,7 +29,7 @@ func (v *DiffWorker) ValidateCodeDefsNotInSpec() (error, []string) {
 	}
 
 	for _, apiDef := range v.codeAPIDefs {
-		if !slices.Contains(v.ignoredAPISpecs.ignoredAPISpecs, apiDef.apiPath) {
+		if !slices.Contains(v.ignoredAPISpecs.ignoredAPIPaths, apiDef.apiPath) {
 			if len(apiDef.httpMethod) > 0 {
 				v := foundInSpec[apiDef.httpMethod+" "+apiDef.apiPath]
 				if len(v) == 0 {
@@ -55,7 +55,7 @@ func (v *DiffWorker) ValidateSpecDefsNotInCode() (error, []string) {
 	}
 
 	for _, apiDef := range v.specAPIDefs {
-		if !slices.Contains(v.ignoredAPISpecs.ignoredAPISpecs, apiDef) {
+		if !slices.Contains(v.ignoredAPISpecs.ignoredAPIPaths, apiDef) {
 			v := foundInCode[apiDef]
 			if v == nil {
 				log.Info().Msg(fmt.Sprintf("API defined in spec does not have corresponding implementation %s:", apiDef))

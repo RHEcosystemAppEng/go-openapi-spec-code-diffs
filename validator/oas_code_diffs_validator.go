@@ -7,10 +7,12 @@ import (
 
 // OpenAPISpecCodeDiffsValidator The main input struct for this validation tool
 type OpenAPISpecCodeDiffsValidator struct {
-	ignoredDirectories string
-	ignoredAPISpecs    string
-	goSourcesDir       string
-	oasSpecFile        string // filename with path
+	ignoredDirFile      string
+	ignoredFilesFile    string
+	ignoredLinesFile    string
+	ignoredAPIPathsFile string
+	goSourcesDir        string
+	oasSpecFile         string // filename with path
 }
 
 // OpenAPISpecCodeDiffsResult Represents results of diff operation between golang source code and OpenAPI Specs
@@ -20,26 +22,38 @@ type OpenAPISpecCodeDiffsResult struct {
 }
 
 // NewOpenAPISpecCodeDiffsValidator Returns a new OpenAPISpecCodeDiffsValidator
-func NewOpenAPISpecCodeDiffsValidator(ignoredDirectories string, ignoredAPISpecs string, goSourcesDir string, oasSpecFile string) *OpenAPISpecCodeDiffsValidator {
-	return &OpenAPISpecCodeDiffsValidator{ignoredDirectories: ignoredDirectories, ignoredAPISpecs: ignoredAPISpecs, goSourcesDir: goSourcesDir, oasSpecFile: oasSpecFile}
+func NewOpenAPISpecCodeDiffsValidator(ignoredDirFile string, ignoredFilesFile string, ignoredLinesFile string, ignoredAPIPathsFile string, goSourcesDir string, oasSpecFile string) *OpenAPISpecCodeDiffsValidator {
+	return &OpenAPISpecCodeDiffsValidator{ignoredDirFile: ignoredDirFile, ignoredAPIPathsFile: ignoredAPIPathsFile, goSourcesDir: goSourcesDir, oasSpecFile: oasSpecFile, ignoredFilesFile: ignoredFilesFile, ignoredLinesFile: ignoredLinesFile}
 }
 
 // setupValidator Sets up validator tool for its operation
 func (v *OpenAPISpecCodeDiffsValidator) setupValidator() (error, *DiffWorker) {
-	err, ignoredDirectories := NewIgnoredDirectories(v.ignoredDirectories)
+	err, ignoredDirectories := NewIgnoredDirectories(v.ignoredDirFile)
 	if err != nil {
-		log.Error().Msg("Error while processing ignored directories " + err.Error())
+		log.Error().Msg("Error while processing ignored directories file" + err.Error())
 		return err, nil
 	}
 
-	err, ignoredAPISpecs := NewIgnoredAPISpecs(v.ignoredAPISpecs)
+	err, ignoredAPIPaths := NewIgnoredAPIRoutes(v.ignoredAPIPathsFile)
 	if err != nil {
-		log.Error().Msg("Error while processing ignored specs" + err.Error())
+		log.Error().Msg("Error while processing ignored api paths file" + err.Error())
 		return err, nil
 	}
 
-	dirWalker := NewGoSourceDirectory(v.goSourcesDir, ignoredDirectories)
-	err, codeAPIDefs := dirWalker.WalkDirectory()
+	err, ignoredFiles := NewIgnoredFiles(v.ignoredFilesFile)
+	if err != nil {
+		log.Error().Msg("Error while processing ignored files file" + err.Error())
+		return err, nil
+	}
+
+	err, ignoredLines := NewIgnoredLines(v.ignoredLinesFile)
+	if err != nil {
+		log.Error().Msg("Error while processing ignored lines file" + err.Error())
+		return err, nil
+	}
+
+	dirWalker := NewGoSourceScanner(v.goSourcesDir, ignoredDirectories, ignoredFiles, ignoredLines)
+	err, codeAPIDefs := dirWalker.ScanSourcesForAPIDefs()
 	if err != nil {
 		log.Error().Msg("Error while processing go source directories" + err.Error())
 		return err, nil
@@ -54,7 +68,7 @@ func (v *OpenAPISpecCodeDiffsValidator) setupValidator() (error, *DiffWorker) {
 
 	specAPIDefs := oasModel.GetPathOps()
 
-	return nil, NewDiffWorker(codeAPIDefs, specAPIDefs, ignoredAPISpecs)
+	return nil, NewDiffWorker(codeAPIDefs, specAPIDefs, ignoredAPIPaths)
 }
 
 // Validate main validation function that sets up the validation tool and returns the diff result

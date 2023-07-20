@@ -3,17 +3,20 @@ package validator
 import (
 	"bufio"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/exp/slices"
 	"os"
+	"strings"
 )
 
 // golangSourceFileReader Represents golang source file
 type golangSourceFileReader struct {
-	fileName string
+	fileName     string
+	ignoredLines *IgnoredLines
 }
 
 // NewGoLangSourceFileReader Returns a new golangSourceFileReader
-func NewGoLangSourceFileReader(fileName string) *golangSourceFileReader {
-	return &golangSourceFileReader{fileName: fileName}
+func NewGoLangSourceFileReader(fileName string, ignoredLines *IgnoredLines) *golangSourceFileReader {
+	return &golangSourceFileReader{fileName: fileName, ignoredLines: ignoredLines}
 }
 
 // GetAPILines Returns goSourceAPILine representing api paths found in golang source file
@@ -30,10 +33,12 @@ func (f *golangSourceFileReader) GetAPILines() (error, []*goSourceAPILine) {
 	for fileScanner.Scan() {
 		lineNo++
 		line := fileScanner.Text()
-		apiLine := NewGoSourceAPILine(f.fileName, line, lineNo, "", "")
-		if apiLine.IsAPIEndpointDefLine() {
-			apiLine.InferHttpMethod()
-			apiLines = append(apiLines, apiLine)
+		if !slices.Contains(f.ignoredLines.ignoredLines, strings.TrimSpace(line)) {
+			apiLine := NewGoSourceAPILine(f.fileName, line, lineNo, "", "")
+			if apiLine.MatchesAPIEndpointRegEx() {
+				apiLine.InferHttpMethod()
+				apiLines = append(apiLines, apiLine)
+			}
 		}
 	}
 
