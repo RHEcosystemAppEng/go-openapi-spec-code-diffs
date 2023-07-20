@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"github.com/RHEcosystemAppEng/openapi_spec_code_diffs/validator"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -14,22 +14,28 @@ const SUCCESS = 0
 const ERROR_PROCESSING_DIFFS = -2
 const ERROR_INSUFFICIENT_ARGS = -3
 
-var ignoredDirsFile string
-var ignoredFilesFile string
-var ignoredLinesFile string
-var ignoredPathsFile string
-var goSourceDir string
-var openAPIFile string
+var ignoredDirsFile *string
+var ignoredFilesFile *string
+var ignoredLinesFile *string
+var ignoredPathsFile *string
+var goSourceDir *string
+var openAPISpecsFile *string
+var logLevelArg *string
 var logLevel zerolog.Level = zerolog.InfoLevel
 
 func main() {
-	if len(os.Args) < 8 {
-		showUsage()
-		os.Exit(ERROR_INSUFFICIENT_ARGS)
-	}
-	argsToVars()
+	ignoredDirsFile = flag.String("ignoredDirsFile", "", "File containing directories that are ignored")
+	ignoredFilesFile = flag.String("ignoredFilesFile", "", "File containing file names that are ignored")
+	ignoredLinesFile = flag.String("ignoredLinesFile", "", "File containing lines that are ignored")
+	ignoredPathsFile = flag.String("ignoredPathsFile", "", "File containing api paths that are ignored")
+	goSourceDir = flag.String("goSourceDir", "./", "Path to go sources directory")
+	openAPISpecsFile = flag.String("openAPISpecsFile", "./openapi.yaml", "Filename including path to openapi specifications")
+	logLevelArg = flag.String("logLevel", "info", "Log level: disabled, info, debug, error")
+	flag.Parse()
+	mapLogLevelArg()
 	zerolog.SetGlobalLevel(logLevel)
-	validator := validator.NewOpenAPISpecCodeDiffsValidator(ignoredDirsFile, ignoredFilesFile, ignoredLinesFile, ignoredPathsFile, goSourceDir, openAPIFile)
+
+	validator := validator.NewOpenAPISpecCodeDiffsValidator(*ignoredDirsFile, *ignoredFilesFile, *ignoredLinesFile, *ignoredPathsFile, *goSourceDir, *openAPISpecsFile)
 	err, result := validator.Validate()
 	if err != nil {
 		log.Error().Msg("Error while performing diffs: " + err.Error())
@@ -55,16 +61,9 @@ func main() {
 	}
 }
 
-// argsToVars Maps program arguments to variables
-func argsToVars() {
-	openAPIFile = os.Args[1]
-	goSourceDir = os.Args[2]
-	ignoredDirsFile = os.Args[3]
-	ignoredFilesFile = os.Args[4]
-	ignoredLinesFile = os.Args[5]
-	ignoredPathsFile = os.Args[6]
-
-	switch os.Args[7] {
+// mapLogLevelArg Maps program arguments to variables
+func mapLogLevelArg() {
+	switch *logLevelArg {
 	case "disabled":
 		logLevel = zerolog.Disabled
 	case "info":
@@ -76,10 +75,4 @@ func argsToVars() {
 	default:
 		log.Error().Msg("Invalid log level passed, will default to Info")
 	}
-}
-
-// showUsage Shows program usage
-func showUsage() {
-	fmt.Println("Usage: openapi-spec-code-diffs 'path/to/openapi/specs/filename' 'path/to/golang/source/dir' 'path/to/ignored/directories/filename' 'path/to/ignored/paths/filename' 'log-level can be one of: disabled, info, debug, error'")
-	fmt.Println("Usage Example: openapi-spec-code-diffs '~/example-service/openapi.yaml' '~/example-service' '~/example-service/.dirignore' '~/example-service/.specignore' 'info'")
 }

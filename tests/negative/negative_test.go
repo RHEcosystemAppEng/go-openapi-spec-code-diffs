@@ -20,16 +20,10 @@ func TestSpecDoesNotMatchCode(t *testing.T) {
 	assert.Equal(t, 1, len(result.SpecDefsNotInCode), "There is exactly 1 mismatch: specs do not match code")
 }
 
-func TestNoDirIgnoreFile(t *testing.T) {
-	v := validator.NewOpenAPISpecCodeDiffsValidator("", "./sample-app1/.filesignore", "./sample-app1/.linesignore", "./sample-app1/.apiignore", "./sample-app1", "./sample-app1/api-spec.yaml")
+func TestIgnoredFilesPassedEmpty(t *testing.T) {
+	v := validator.NewOpenAPISpecCodeDiffsValidator("", "", "", "", "./sample-app1", "./sample-app1/api-spec.yaml")
 	err, _ := v.Validate()
-	assert.Error(t, err, "Error has occurred: "+err.Error())
-}
-
-func TestNoIgnoredAPIFile(t *testing.T) {
-	v := validator.NewOpenAPISpecCodeDiffsValidator("./sample-app1/.dirignore", "./sample-app1/.filesignore", "./sample-app1/.linesignore", "", "./sample-app1", "./sample-app1/api-spec.yaml")
-	err, _ := v.Validate()
-	assert.Error(t, err, "Error has occurred: "+err.Error())
+	assert.Nil(t, err, "Error has not occurred: when there is no ignored directory file name")
 }
 
 func TestNoSourceDir(t *testing.T) {
