@@ -6,27 +6,27 @@ A validation tool that compares OpenAPI specs vis-a-vis routes (e.g. /api/v1/cus
 ## What
 This validator validates API Endpoints defined in golang source code with OpenAPI specifications and reports following differences.
 * OpenAPI specs found in specifications but not found in golang source code
-* Routes found in golang source code but not found in OpenAPI specs
+* Routes found in golang source code but not found in OpenAPI specs.
 
 ## Why
 * Helps to keep OpenAPI specs and golang source code in synch.
-* Do not forget to implement paths defined in OpenAPI specs in golang source code
-* Do not forget to include APIs implemented in golang source code in OpenAPI specs in
+* Do not forget to implement paths defined in OpenAPI specs in golang source code.
+* Do not forget to include APIs implemented in golang source code in OpenAPI specs in.
 
 ## How
-* This tool takes golang source root directory which implements your API and OpenAPI specs file as inputs
+* This tool takes golang source root directory which implements your API and OpenAPI specs file as inputs.
 * The tool essentially builds two lists: 
-  1. List of routes/paths found in golang source code 
-  2. List of routes/paths defined in your OpenAPI specs file
-  * Both the lists should match if not the tool will report differences
+  1. List of routes/paths found in golang source code.
+  2. List of routes/paths defined in your OpenAPI specs file.
+  * Both the lists should match if not the tool will report differences.
 * The tool uses regular expressions to find paths defined in golang source code e.g. "/health/ready", "/users" etc.
   * Once such a path is found, the corresponding line is scanned to look for a httpmethod such as GET, PUT, POST, DELETE, HEAD, OPTIONS and PATCH.
   * If the httpmethod is found on the line then tool considers the path found in the line as a valid route/path definition.
-  * Thus following code is considered a valid route/path definition by the tool
+  * Thus following code is considered a valid route/path definition by the tool.
 ```go
 route := routeRegistration{"PUT", "/user/:id/admin/:isAdmin", handlers.SetAdminStatus}
 ```
-  * However the following line is not considered a valid route/path definition as this is the line having a golang keyword 'if'
+  * However the following line is not considered a valid route/path definition as this is the line having a golang keyword 'if'.
 ```go
 if "/this/is/not/considered/a/path/definition" == "DELETE" {
 ```
