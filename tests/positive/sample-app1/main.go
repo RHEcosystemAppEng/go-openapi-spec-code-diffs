@@ -17,7 +17,12 @@ func IsHealthy(ginCtx *gin.Context) {
 
 func ThisIsNotAnAPIRouteDefinition() {
 	if "/users/id/:activate/" == "POST" {
-		fmt.Println("This function is to trick validator to think this is an API definition, but it is not. %s")
+		fmt.Println("This function is to trick validator to think this is an API definition, but it is not.")
+	}
+
+	s := ""
+	if s == "/user/invite" || s == "POST" {
+		fmt.Println("Even this is to trick the validator to think this is an API definition, but it is not.")
 	}
 }
 
